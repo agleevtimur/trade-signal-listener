@@ -1,0 +1,11 @@
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: info
+            channels: ["app"]
+        syslog:
+            type: syslog
+            path: "%kernel.logs_dir%/%kernel.environment%.error.log"
+            level: error

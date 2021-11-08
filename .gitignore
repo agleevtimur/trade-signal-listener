@@ -1,5 +1,11 @@
 vendor
-composer.lock
+
 .env.local
 var
 .idea
+composer.lock
+symfony.lock
+docker/logs
+
+public/*
+!public/index.php
