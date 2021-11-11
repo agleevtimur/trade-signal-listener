@@ -53,6 +53,11 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         $parsedSignal->orderId = explode(' ', explode('#id', $text)[1])[0];
         $parsedSignal->type = $type;
 
+        $preTicker = explode(' ', explode('#', $text)[2])[0];
+        $parsedSignal->ticker = substr_replace($preTicker, '.', 3, 0);
+
+        $parsedSignal->channelId = self::$channelId;
+
         return $parsedSignal;
     }
 
@@ -77,14 +82,10 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         $type = str_contains($text, R2BCSignalEnum::BUY) === true ? 'BUY' : 'SELL';
         $signal->price = (float)explode('\n', explode(' ', explode($type, $text)[1])[1])[0];
 
-        $preTicker = explode(' ', explode('#', $text)[2])[0];
-        $signal->ticker = substr_replace($preTicker, '.', 3, 0);
-
         $splitText = explode(' ', $text);
         $signal->takeProfit = (float)array_pop($splitText);
 
         $signal->percentage = 1;
-        $signal->channelId = self::$channelId;
 
         return $signal;
     }
