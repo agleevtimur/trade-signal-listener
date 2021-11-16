@@ -29,6 +29,6 @@ namespace App\Service;
          }
 
          $result = $response->getStatusCode() === 200 ? 'successful' : 'error';
-         $this->logger->info(json_encode($signal), ["signal sent $result"]);
+         $this->logger->info("signal sent $result");
      }
 }

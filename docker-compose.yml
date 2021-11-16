@@ -30,7 +30,8 @@ services:
       - "host.docker.internal:host-gateway"
 
   ib-gateway:
-    image: waytrade/ib-gateway:1010
+    build:
+      context: ./docker/ib_gateway
     restart: always
     environment:
       TWS_USERID: ${TWS_USERID}
