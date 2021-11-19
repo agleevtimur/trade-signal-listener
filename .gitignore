@@ -7,5 +7,4 @@ composer.lock
 symfony.lock
 docker/logs
 
-public/*
-!public/index.php
+session
