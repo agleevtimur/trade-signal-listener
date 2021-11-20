@@ -10,13 +10,6 @@ use Generator;
 
 class NewSignalEvent extends EventHandler
 {
-    protected static array $dbProperties = [
-        'session' => [
-            'type' => 'array123',
-            'config' => ['enableCache' => false]
-        ]
-    ];
-
     protected array $dataStoredOnDb;
 
     public function onUpdateNewChannelMessage(array $update): Generator
