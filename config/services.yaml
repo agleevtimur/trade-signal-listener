@@ -1,5 +1,7 @@
 parameters:
     signal_receiver_url: '%env(resolve:SIGNAL_RECEIVER_URL)%'
+    telegram_api_id: '%env(resolve:TELEGRAM_API_ID)%'
+    telegram_api_hash: '%env(resolve:TELEGRAM_API_HASH)%'
 
 services:
     _defaults:

@@ -30,9 +30,12 @@ class TelegramListenCommand extends Command
         SignalHandlerManager::setServices($this->logger, new Client(), $this->parameterBag);
 
         $settings = new Settings();
-        $settings->setDb(new Memory());
+        $appInfo = (new AppInfo())
+            ->setApiId($this->parameterBag->get('telegram_api_id'))
+            ->setApiHash($this->parameterBag->get('telegram_api_hash'));
+        $settings->setAppInfo($appInfo);
 
-        $madeline = new API('session.madeline');
+        $madeline = new API('session/session.madeline', $settings);
         $madeline->startAndLoop(NewSignalEvent::class);
 
         return Command::SUCCESS;
