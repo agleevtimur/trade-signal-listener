@@ -1,17 +1,6 @@
 version: '3'
 
 services:
-  php:
-    container_name: php
-    build:
-      context: ./docker/php
-    environment:
-      - APP_ENV=${APP_ENV}
-      - APP_SECRET=${APP_SECRET}
-    user: "1000:1000"
-    volumes:
-      - ./:/var/www
-
   ib-gateway:
     build:
       context: ./docker/ib_gateway
@@ -25,3 +14,13 @@ services:
       - "127.0.0.1:4001:4001"
       - "127.0.0.1:4002:4002"
       - "127.0.0.1:5900:5900"
+
+  php:
+    container_name: php
+    build:
+      context: ./docker/php
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_SECRET=${APP_SECRET}
+    volumes:
+      - ./:/var/www
