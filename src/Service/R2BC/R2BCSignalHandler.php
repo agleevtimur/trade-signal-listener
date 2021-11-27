@@ -50,6 +50,9 @@ class R2BCSignalHandler extends SignalHandlerAbstract
             $parsedSignal->action = 'BUY';
         }
 
+        $parsedSignal->price = (float)explode('\n', explode(' ', explode($parsedSignal->action, $text)[1])[1])[0];
+        $parsedSignal->percentage = 1;
+
         $parsedSignal->orderId = explode(' ', explode('#id', $text)[1])[0];
         $parsedSignal->type = $type;
 
@@ -79,13 +82,8 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         $signal = new NewOrderDTO();
 
         $signal->contractType = 'LIMIT';
-        $type = str_contains($text, R2BCSignalEnum::BUY) === true ? 'BUY' : 'SELL';
-        $signal->price = (float)explode('\n', explode(' ', explode($type, $text)[1])[1])[0];
-
         $splitText = explode(' ', $text);
         $signal->takeProfit = (float)array_pop($splitText);
-
-        $signal->percentage = 1;
 
         return $signal;
     }
