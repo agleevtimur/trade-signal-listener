@@ -7,18 +7,17 @@ use App\DTO\CloseOrderDTO;
 use App\DTO\ModificationDTO;
 use App\DTO\NewOrderDTO;
 use App\Service\SignalHandlerAbstract;
-use GuzzleHttp\Client;
-use Psr\Log\LoggerInterface;
 
 class R2BCSignalHandler extends SignalHandlerAbstract
 {
+    const SKIP_TICKERS = ['XAU'];
     public const CHANNEL_TELEGRAM_ID = 1210594398;
     protected static string $channelId = 'R2BC';
 
     public function resolve(string $text, int $messageId = 0): void
     {
         $signalParsed = $this->parse($text);
-        if ($signalParsed === null) {
+        if ($signalParsed === null || $this->needToSkip($signalParsed) === true) {
             return;
         }
         $signalParsed->messageId = $messageId;
@@ -119,5 +118,11 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         ];
 
         return $signal;
+    }
+
+    private function needToSkip(BaseOrderDTO $signal): bool
+    {
+        $result = array_filter(self::SKIP_TICKERS, fn($ticker) => str_contains($signal->ticker, $ticker));
+        return $result !== [];
     }
 }
