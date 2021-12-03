@@ -27,8 +27,11 @@ class NewSignalEvent extends EventHandler
             return yield null;
         }
 
-        $channelId = $update['message']['peer_id']['channel_id'] ?? $update['message']['peer_id']['user_id'];
+        if (isset($update['message']['peer_id']['chat_id'])) {
+            yield 1;
+        }
 
+        $channelId = $update['message']['peer_id']['channel_id'] ?? $update['message']['peer_id']['user_id'];
         SignalHandlerManager::handle($channelId, $update['message']['message'], $update['message']['id']);
 
         yield 1;

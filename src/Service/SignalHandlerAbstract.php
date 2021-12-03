@@ -18,17 +18,16 @@ namespace App\Service;
 
      protected function send(BaseOrderDTO $signal): void
      {
-         $this->logger->info(json_encode($signal), ['before sending']);
          try {
              $response = $this->client->post($this->parameterBag->get('signal_receiver_url'), [
                  'json' => $signal
              ]);
          } catch (\Exception $exception) {
-             $this->logger->info($exception->getMessage(), ['request error']);
+             $this->logger->info($exception->getMessage(), ['request error', 'signal' => json_encode($signal)]);
              return;
          }
 
          $result = $response->getStatusCode() === 200 ? 'successful' : 'error';
-         $this->logger->info("signal sent $result");
+         $this->logger->info("signal sent $result", ['signal' => json_encode($signal)]);
      }
 }
