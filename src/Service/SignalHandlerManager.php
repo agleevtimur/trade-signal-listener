@@ -16,7 +16,7 @@ class SignalHandlerManager
     private static array $handlerDictionary = [
         R2BCSignalHandler::CHANNEL_TELEGRAM_ID => R2BCSignalHandler::class,
         //my (timur) telegram id
-        1158257674 => R2BCSignalHandler::class
+        5015125886 => R2BCSignalHandler::class
     ];
 
     public static function handle(int $channelTelegramId, string $message, int $messageId): void

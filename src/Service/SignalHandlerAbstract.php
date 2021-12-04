@@ -23,11 +23,11 @@ namespace App\Service;
                  'json' => $signal
              ]);
          } catch (\Exception $exception) {
-             $this->logger->info($exception->getMessage(), ['request error', 'signal' => json_encode($signal)]);
+             $this->logger->info(json_encode($signal), [$exception->getMessage()]);
              return;
          }
 
          $result = $response->getStatusCode() === 200 ? 'successful' : 'error';
-         $this->logger->info("signal sent $result", ['signal' => json_encode($signal)]);
+         $this->logger->info(json_encode($signal), ["signal sent $result"]);
      }
 }
