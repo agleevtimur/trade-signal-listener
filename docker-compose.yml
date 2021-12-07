@@ -6,14 +6,14 @@ services:
       context: ./docker/ib_gateway
     restart: always
     environment:
-      TWS_USERID: ${TWS_USERID}
-      TWS_PASSWORD: ${TWS_PASSWORD}
+      TWS_USERID: ${TWS_USERID_SECOND}
+      TWS_PASSWORD: ${TWS_PASSWORD_SECOND}
       TRADING_MODE: ${TRADING_MODE}
       VNC_SERVER_PASSWORD: ${VNC_SERVER_PASSWORD}
     ports:
-      - "127.0.0.1:4001:4001"
-      - "127.0.0.1:4002:4002"
-      - "127.0.0.1:5900:5900"
+      - "127.0.0.1:4011:4001"
+      - "127.0.0.1:4022:4002"
+      - "127.0.0.1:5910:5900"
 
   php:
     container_name: php

@@ -9,7 +9,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-ENTRYPOINT php bin/console listen-telegram
+#ENTRYPOINT php bin/console listen-telegram
 
 CMD composer i -o ;  php-fpm
 
