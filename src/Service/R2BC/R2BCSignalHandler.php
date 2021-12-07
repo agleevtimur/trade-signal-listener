@@ -10,7 +10,7 @@ use App\Service\SignalHandlerAbstract;
 
 class R2BCSignalHandler extends SignalHandlerAbstract
 {
-    const SKIP_TICKERS = ['XAU'];
+    const SKIP_TICKERS = ['XAU', 'JPY'];
     public const CHANNEL_TELEGRAM_ID = 1210594398;
     protected static string $channelId = 'R2BC';
 
