@@ -13,4 +13,4 @@ WORKDIR /var/www
 
 CMD composer i -o ;  php-fpm
 
-EXPOSE 9000
+EXPOSE 9001
