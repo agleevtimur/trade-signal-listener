@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  ib-gateway:
+  ib-gateway-second:
     build:
       context: ./docker/ib_gateway
     restart: always
@@ -15,7 +15,7 @@ services:
       - "127.0.0.1:4022:4002"
       - "127.0.0.1:5910:5900"
 
-  php:
+  php-second:
     container_name: php
     build:
       context: ./docker/php
