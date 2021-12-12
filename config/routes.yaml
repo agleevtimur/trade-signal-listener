@@ -1,3 +1,0 @@
-init:
-  path: /init
-  controller: App\Controller\TelegramController::init

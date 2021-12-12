@@ -1,0 +1,4 @@
+init:
+  path: /receive
+  methods: [POST]
+  controller: App\Controller\SignalController::receive

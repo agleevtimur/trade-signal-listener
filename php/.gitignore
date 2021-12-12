@@ -5,6 +5,3 @@ var
 .idea
 composer.lock
 symfony.lock
-docker/logs
-
-session
