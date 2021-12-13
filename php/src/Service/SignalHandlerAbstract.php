@@ -14,12 +14,12 @@ namespace App\Service;
     abstract protected function resolve(string $text, int $messageId = 0): void;
     abstract protected function parse(string $text): ?BaseOrderDTO;
 
-    public function __construct(protected LoggerInterface $logger, private Client $client, private ParameterBagInterface $parameterBag) {}
+    public function __construct(protected LoggerInterface $logger, private Client $client, private string $endpoint) {}
 
      protected function send(BaseOrderDTO $signal): void
      {
          try {
-             $response = $this->client->post($this->parameterBag->get('signal_receiver_url'), [
+             $response = $this->client->post($this->endpoint, [
                  'json' => $signal
              ]);
          } catch (\Exception $exception) {

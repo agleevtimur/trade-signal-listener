@@ -1,5 +1,6 @@
 parameters:
     signal_receiver_url: '%env(resolve:SIGNAL_RECEIVER_URL)%'
+    signal_receiver_url_second: '%env(resolve:SIGNAL_RECEIVER_URL_SECOND)%'
 
 services:
     _defaults:
