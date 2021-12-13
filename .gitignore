@@ -1,10 +1,3 @@
-vendor
-
-.env.local
-var
 .idea
-composer.lock
-symfony.lock
+.env.local
 docker/logs
-
-session

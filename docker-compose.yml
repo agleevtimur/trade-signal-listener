@@ -22,5 +22,24 @@ services:
     environment:
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
+      - SIGNAL_RECEIVER_URL=${SIGNAL_RECIEVER_URL}
     volumes:
-      - ./:/var/www
+      - ./php:/var/www
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./docker/nginx
+    volumes:
+      - ./php:/var/www
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/sites/:/etc/nginx/sites-available
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d
+      - ./docker/logs:/var/log/nginx
+    depends_on:
+      - php
+    ports:
+      - "81:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+ 

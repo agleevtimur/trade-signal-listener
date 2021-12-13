@@ -1,0 +1,4 @@
+.env.local
+session.session
+__pycache__/
+requirements.txt
