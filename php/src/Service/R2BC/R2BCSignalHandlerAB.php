@@ -9,6 +9,8 @@ use App\DTO\NewOrderDTOAB;
 
 class R2BCSignalHandlerAB extends R2BCSignalHandler
 {
+    protected static string $channelId = 'R2BC_ONLY_OPEN_CLOSE';
+
     protected function parse(string $text): ?BaseOrderDTO
     {
         $type = $this->parseType($text);
