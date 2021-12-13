@@ -22,7 +22,7 @@ services:
     environment:
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
-      - SIGNAL_RECEIVER_URL=${SIGNAL_RECIEVER_URL}
+      - SIGNAL_RECEIVER_URL=${SIGNAL_RECEIVER_URL}
     volumes:
       - ./php:/var/www
 
@@ -42,4 +42,4 @@ services:
       - "81:80"
     extra_hosts:
       - "host.docker.internal:host-gateway"
- 
+

@@ -1,3 +1,4 @@
+.env
 .env.local
 session.session
 __pycache__/
