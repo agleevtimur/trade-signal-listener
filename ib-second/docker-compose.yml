@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  ib-gateway-second:
+    build:
+      context: ../docker/ib_gateway
+    restart: always
+    environment:
+      TWS_USERID: ${TWS_USERID_SECOND}
+      TWS_PASSWORD: ${TWS_PASSWORD_SECOND}
+      TRADING_MODE: ${TRADING_MODE}
+      VNC_SERVER_PASSWORD: ${VNC_SERVER_PASSWORD}
+    ports:
+      - "127.0.0.1:4001:4011"
+      - "127.0.0.1:4002:4012"
+      - "127.0.0.1:5900:5910"
