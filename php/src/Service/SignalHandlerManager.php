@@ -24,8 +24,8 @@ class SignalHandlerManager
         }
 
         $this->logger->info('new signal received');
-        (new $handlerClass($this->logger, $this->client, $this->parameterBag->get('signal_receiver_url')))->resolve($message, $messageId);
-        $this->logger->info('b test executed');
+//        (new $handlerClass($this->logger, $this->client, $this->parameterBag->get('signal_receiver_url')))->resolve($message, $messageId);
+//        $this->logger->info('b test executed');
 
         (new R2BCSignalHandlerAB($this->logger, $this->client, $this->parameterBag->get('signal_receiver_url_second')))->resolve($message, $messageId);
         $this->logger->info('a test executed');

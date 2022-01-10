@@ -7,6 +7,7 @@ RUN pip3 install -r requirements.txt
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade telethon
 RUN pip3 install python-dotenv
+RUN pip3 install requests
 
 COPY . .
 

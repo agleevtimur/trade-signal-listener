@@ -35,7 +35,7 @@ class R2BCSignalHandlerAB extends R2BCSignalHandler
         }
 
         $parsedSignal->price = (float)explode('\n', explode(' ', explode($parsedSignal->action, $text)[1])[1])[0];
-        $parsedSignal->percentage = 1;
+        $parsedSignal->percentage = 15;
 
         $parsedSignal->orderId = explode(' ', explode('#id', $text)[1])[0];
         $parsedSignal->type = $type;
