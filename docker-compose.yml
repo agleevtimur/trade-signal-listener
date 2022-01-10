@@ -1,20 +1,6 @@
 version: '3'
 
 services:
-  ib-gateway:
-    build:
-      context: ./docker/ib_gateway
-    restart: always
-    environment:
-      TWS_USERID: ${TWS_USERID}
-      TWS_PASSWORD: ${TWS_PASSWORD}
-      TRADING_MODE: ${TRADING_MODE}
-      VNC_SERVER_PASSWORD: ${VNC_SERVER_PASSWORD}
-    ports:
-      - "127.0.0.1:4011:4001"
-      - "127.0.0.1:4012:4002"
-      - "127.0.0.1:5910:5900"
-
   php:
     container_name: php
     build:
@@ -23,7 +9,6 @@ services:
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
       - SIGNAL_RECEIVER_URL=${SIGNAL_RECEIVER_URL}
-      - SIGNAL_RECEIVER_URL_SECOND=${SIGNAL_RECEIVER_URL_SECOND}
     volumes:
       - ./php:/var/www
 

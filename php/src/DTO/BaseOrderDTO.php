@@ -13,8 +13,6 @@ abstract class BaseOrderDTO implements JsonSerializable
     public string $action;
     public ?float $price = null;
     public float $percentage;
-    public ?float $takeProfit = null;
-    public ?float $stopLoss = null;
     public int $messageId;
 
     public function jsonSerialize(): array
@@ -27,8 +25,6 @@ abstract class BaseOrderDTO implements JsonSerializable
             'ticker' => $this->ticker,
             'price' => $this->price,
             'percentage' => $this->percentage,
-            'takeProfit' => $this->takeProfit,
-            'stopLoss' => $this->stopLoss,
             'messageId' => $this->messageId
         ];
     }

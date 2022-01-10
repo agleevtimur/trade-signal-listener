@@ -4,15 +4,17 @@ namespace App\Service\R2BC;
 
 use App\DTO\BaseOrderDTO;
 use App\DTO\CloseOrderDTO;
+use App\DTO\CloseOrderDTOAB;
 use App\DTO\ModificationDTO;
 use App\DTO\NewOrderDTO;
+use App\DTO\NewOrderDTOAB;
 use App\Service\SignalHandlerAbstract;
 
 class R2BCSignalHandler extends SignalHandlerAbstract
 {
     const SKIP_TICKERS = ['XAU', 'JPY'];
     public const CHANNEL_TELEGRAM_ID = 1210594398;
-    protected static string $channelId = 'R2BC_ONLY_OPEN_PENDING';
+    protected static string $channelId = 'R2BC_OPEN_CLOSE_MARKET';
 
     public function resolve(string $text, int $messageId = 0): void
     {
@@ -34,7 +36,6 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
         $parsedSignal = match ($type) {
             'OPEN' => $this->parseNewOrder($text),
-            'MODIFICATION' => $this->parseModification($text),
             'CLOSE' => $this->parseCloseOrder($text),
             default => null
         };
@@ -50,7 +51,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         }
 
         $parsedSignal->price = (float)explode('\n', explode(' ', explode($parsedSignal->action, $text)[1])[1])[0];
-        $parsedSignal->percentage = 10;
+        $parsedSignal->percentage = 15;
 
         $parsedSignal->orderId = explode(' ', explode('#id', $text)[1])[0];
         $parsedSignal->type = $type;
@@ -65,10 +66,8 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
     protected function parseType(string $text): ?string
     {
-        if (str_contains($text, R2BCSignalEnum::MODIFICATION)) {
-            return 'MODIFICATION';
-        } elseif (strpos($text, R2BCSignalEnum::NEW_ORDER)) {
-           return 'OPEN';
+        if (strpos($text, R2BCSignalEnum::NEW_ORDER)) {
+            return 'OPEN';
         } elseif (str_contains($text, R2BCSignalEnum::CLOSE_ORDER)) {
             return 'CLOSE';
         }
@@ -80,21 +79,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
     {
         $signal = new NewOrderDTO();
 
-        $signal->contractType = 'LIMIT';
-        $splitText = explode(' ', $text);
-        $signal->takeProfit = (float)array_pop($splitText);
-
-        return $signal;
-    }
-
-    protected function parseModification(string $text): ModificationDTO
-    {
-        $signal = new ModificationDTO();
-
-        $splitText = explode(' ', $text);
-        $signal->takeProfit = (float)array_pop($splitText);
-        array_pop($splitText);
-        $signal->previousTakeProfit = (float)array_pop($splitText);
+        $signal->contractType = 'MARKET';
 
         return $signal;
     }
@@ -102,9 +87,6 @@ class R2BCSignalHandler extends SignalHandlerAbstract
     protected function parseCloseOrder(string $text): BaseOrderDTO
     {
         $signal = new CloseOrderDTO();
-
-        $splitText = explode(' ', explode('TP:', $text)[1]);
-        $signal->takeProfit = (float)$splitText[1];
 
         $priceClose = (float)explode(' ', explode(R2BCSignalEnum::CLOSE_PRICE, $text)[1])[1];
         $income = (float)explode(' ', explode(R2BCSignalEnum::PROFIT, $text)[1])[1];

@@ -9,7 +9,7 @@ class CloseOrderDTO extends BaseOrderDTO
     public function jsonSerialize(): array
     {
         return array_merge(parent::jsonSerialize(), [
-           'extra' => $this->extra
+            'extra' => $this->extra
         ]);
     }
 }

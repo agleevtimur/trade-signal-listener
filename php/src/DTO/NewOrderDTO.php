@@ -2,7 +2,6 @@
 
 namespace App\DTO;
 
-use JsonSerializable;
 
 class NewOrderDTO extends BaseOrderDTO
 {
