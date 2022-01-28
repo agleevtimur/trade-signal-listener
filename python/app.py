@@ -25,8 +25,12 @@ async def event_handler(event):
         peer = str(event.chat.id)
 
     if (peer == R2BC_CHANNEL_ID or peer == USER_ID):
+        if (peer == R2BC_CHANNEL_ID):
+            messageLink = f'https://t.me/r2bcfx/{event.id}'
+        else:
+            messageLink = 'test'
         try:
-            response = requests.post(url = URL, json = {"peer": "r2bc", "message": event.raw_text})
+            response = requests.post(url = URL, json = {"peer": "r2bc", "message": event.raw_text, "messageLink": messageLink})
             if (response.status_code != 200):
                 print('bad request', response.reason)
         except Exception as e:
