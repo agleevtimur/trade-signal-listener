@@ -17,7 +17,7 @@ class SignalController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $handler = new SignalHandlerManager($logger, new Client(), $parameterBag);
 
-        $handler->handle($data['peer'], $data['message']);
+        $handler->handle($data['peer'], $data['message'], $data['messageLink']);
 
         return $this->json(['status' => 'success']);
     }

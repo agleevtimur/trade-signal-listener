@@ -16,7 +16,7 @@ class SignalHandlerManager
 
     public function __construct(private LoggerInterface $logger, private Client $client, private ParameterBagInterface $parameterBag) {}
 
-    public function handle(string $channel, string $message, int $messageId = 0): void
+    public function handle(string $channel, string $message, string $messageLink, int $messageId = 0): void
     {
         $handlerClass = static::$handlerDictionary[$channel] ?? null;
         if ($handlerClass === null) {
@@ -24,6 +24,6 @@ class SignalHandlerManager
         }
 
         $this->logger->info('new signal received');
-        (new $handlerClass($this->logger, $this->client, $this->parameterBag->get('signal_receiver_url')))->resolve($message, $messageId);
+        (new $handlerClass($this->logger, $this->client, $this->parameterBag->get('signal_receiver_url')))->resolve($message, $messageLink, $messageId);
     }
 }

@@ -4,10 +4,7 @@ namespace App\Service\R2BC;
 
 use App\DTO\BaseOrderDTO;
 use App\DTO\CloseOrderDTO;
-use App\DTO\CloseOrderDTOAB;
-use App\DTO\ModificationDTO;
 use App\DTO\NewOrderDTO;
-use App\DTO\NewOrderDTOAB;
 use App\Service\SignalHandlerAbstract;
 
 class R2BCSignalHandler extends SignalHandlerAbstract
@@ -16,13 +13,15 @@ class R2BCSignalHandler extends SignalHandlerAbstract
     public const CHANNEL_TELEGRAM_ID = 1210594398;
     protected static string $channelId = 'R2BC_OPEN_CLOSE_MARKET';
 
-    public function resolve(string $text, int $messageId = 0): void
+    public function resolve(string $text, string $messageLink, int $messageId = 0): void
     {
         $signalParsed = $this->parse($text);
         if ($signalParsed === null || $this->needToSkip($signalParsed) === true) {
             return;
         }
+
         $signalParsed->messageId = $messageId;
+        $signalParsed->extra['messageLink'] = $messageLink;
 
         $this->send($signalParsed);
     }

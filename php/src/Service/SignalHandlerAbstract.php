@@ -11,7 +11,7 @@ namespace App\Service;
 {
     protected static string $channelId;
 
-    abstract protected function resolve(string $text, int $messageId = 0): void;
+    abstract protected function resolve(string $text, string $messageLink, int $messageId = 0): void;
     abstract protected function parse(string $text): ?BaseOrderDTO;
 
     public function __construct(protected LoggerInterface $logger, private Client $client, private string $endpoint) {}
