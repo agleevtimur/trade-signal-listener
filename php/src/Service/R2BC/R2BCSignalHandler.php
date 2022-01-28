@@ -12,7 +12,7 @@ use App\Service\SignalHandlerAbstract;
 
 class R2BCSignalHandler extends SignalHandlerAbstract
 {
-    const SKIP_TICKERS = ['XAU', 'JPY'];
+    const SKIP_TICKERS = [];
     public const CHANNEL_TELEGRAM_ID = 1210594398;
     protected static string $channelId = 'R2BC_OPEN_CLOSE_MARKET';
 
@@ -51,7 +51,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         }
 
         $parsedSignal->price = (float)explode('\n', explode(' ', explode($parsedSignal->action, $text)[1])[1])[0];
-        $parsedSignal->percentage = 15;
+        $parsedSignal->percentage = 100;
 
         $parsedSignal->orderId = explode(' ', explode('#id', $text)[1])[0];
         $parsedSignal->type = $type;

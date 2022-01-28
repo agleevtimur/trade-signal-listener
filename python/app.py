@@ -12,6 +12,7 @@ API_HASH = os.getenv('TELEGRAM_API_HASH')
 R2BC_CHANNEL_ID = os.getenv('R2BC_CHANNEL_ID')
 USER_ID = os.getenv('TIMUR_USER_ID')
 URL = os.getenv('SIGNAL_RECEIVER_URL')
+print(URL)
 
 client = TelegramClient('session', API_ID, API_HASH, sequential_updates=True).start()
 
@@ -24,9 +25,12 @@ async def event_handler(event):
         peer = str(event.chat.id)
 
     if (peer == R2BC_CHANNEL_ID or peer == USER_ID):
-        response = requests.post(url = URL, json = {"peer": "r2bc", "message": event.raw_text})
-        if (response.status_code != 200):
-            print('bad request', response.reason)
+        try:
+            response = requests.post(url = URL, json = {"peer": "r2bc", "message": event.raw_text})
+            if (response.status_code != 200):
+                print('bad request', response.reason)
+        except Exception as e:
+            print('failed send request')
 
 client.start()
 client.run_until_disconnected()
