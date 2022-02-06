@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\R2BC\R2BCOrderLotResolver;
 use App\Service\SignalHandlerManager;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
@@ -18,6 +19,13 @@ class SignalController extends AbstractController
         $handler = new SignalHandlerManager($logger, new Client(), $parameterBag);
 
         $handler->handle($data['peer'], $data['message'], $data['messageLink']);
+
+        return $this->json(['status' => 'success']);
+    }
+
+    public function reloadState(): JsonResponse
+    {
+        R2BCOrderLotResolver::fillStateWithDefaultValues();
 
         return $this->json(['status' => 'success']);
     }

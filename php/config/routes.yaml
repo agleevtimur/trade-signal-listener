@@ -1,4 +1,10 @@
-init:
+receive_signal:
   path: /receive
   methods: [POST]
   controller: App\Controller\SignalController::receive
+
+reload_state:
+  path: /reload
+  methods: [POST]
+  controller: App\Controller\SignalController::reloadState
+

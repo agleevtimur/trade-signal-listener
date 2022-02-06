@@ -10,4 +10,8 @@ class R2BCSignalEnum
     public const SELL = 'SELL';
     public const CLOSE_PRICE = 'ЦЕНА ЗАКРЫТИЯ';
     public const PROFIT = 'ПРИБЫЛЬ';
+
+    public const LOT_START = 0.01;
+    public const LOT_STEP = 0.001;
+    public const LOT_MAX = 0.02;
 }

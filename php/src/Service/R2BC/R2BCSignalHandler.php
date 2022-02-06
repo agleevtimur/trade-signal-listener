@@ -11,7 +11,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 {
     const SKIP_TICKERS = [];
     public const CHANNEL_TELEGRAM_ID = 1210594398;
-    protected static string $channelId = 'R2BC_OPEN_CLOSE_MARKET';
+    protected static string $channelId = 'R2BC';
 
     public function resolve(string $text, string $messageLink, int $messageId = 0): void
     {
@@ -20,6 +20,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
             return;
         }
 
+        $signalParsed->lot = R2BCOrderLotResolver::resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
         $signalParsed->messageId = $messageId;
         $signalParsed->extra['messageLink'] = $messageLink;
 
@@ -45,7 +46,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
         if (str_contains($text, R2BCSignalEnum::SELL)) {
             $parsedSignal->action = 'SELL';
-        } elseif (str_contains($text, R2BCSignalEnum::BUY)){
+        } elseif (str_contains($text, R2BCSignalEnum::BUY)) {
             $parsedSignal->action = 'BUY';
         }
 
