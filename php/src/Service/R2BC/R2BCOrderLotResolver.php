@@ -2,7 +2,7 @@
 
 namespace App\Service\R2BC;
 
-use Predis\Client as RedisClient;
+use Predis\Client;
 
 class R2BCOrderLotResolver
 {
@@ -95,9 +95,9 @@ class R2BCOrderLotResolver
         return $redis->get($key);
     }
 
-    private static function connectDb(): RedisClient
+    private static function connectDb(): Client
     {
-        return new RedisClient([
+        return new Client([
             'host' => 'redis',
             'port' => 6379,
             'persistent' => '1'
