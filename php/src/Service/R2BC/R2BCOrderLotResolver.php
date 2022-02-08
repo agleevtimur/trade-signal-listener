@@ -49,14 +49,16 @@ class R2BCOrderLotResolver
         'USD.CAD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
     ];
 
+    private static array $factorDictionary = [0, 1, 1, 2, 2, 2, 3, 3, 4, 4];
+
     public static function resolve(string $ticker, string $action, string $price): float
     {
         if ($ticker === 'XAU.USD') {
             return R2BCSignalEnum::LOT_START;
         }
 
-        $factor = self::updateStateAndGetFactor($ticker, $action, $price);
-        $result = R2BCSignalEnum::LOT_START + (R2BCSignalEnum::LOT_STEP * $factor);
+        $step = self::updateStateAndGetStep($ticker, $action, $price);
+        $result = R2BCSignalEnum::LOT_START + (R2BCSignalEnum::LOT_STEP * self::$factorDictionary[$step] ?? 5);
 
         return min($result, R2BCSignalEnum::LOT_MAX);
     }
@@ -70,7 +72,7 @@ class R2BCOrderLotResolver
         }
     }
 
-    private static function updateStateAndGetFactor(string $ticker, string $action, string $currentPrice): int
+    private static function updateStateAndGetStep(string $ticker, string $action, string $currentPrice): int
     {
         $redis = self::connectDb();
         $key = $ticker . $action;
