@@ -49,7 +49,7 @@ class R2BCOrderLotResolver
         'USD.CAD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
     ];
 
-    private static array $factorDictionary = [0, 1, 1, 2, 2, 2, 3, 3, 4, 4];
+    private static array $factorDictionary = [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4];
 
     public static function resolve(string $ticker, string $action, string $price): float
     {
