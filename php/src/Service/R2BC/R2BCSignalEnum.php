@@ -12,6 +12,6 @@ class R2BCSignalEnum
     public const PROFIT = 'ПРИБЫЛЬ';
 
     public const LOT_START = 0.01;
-    public const LOT_STEP = 0.001;
-    public const LOT_MAX = 0.02;
+    public const LOT_STEP = 0.01;
+    public const LOT_MAX = 0.05;
 }

@@ -27,7 +27,7 @@ abstract class SignalHandlerAbstract
         try {
             $response = $this->client->post($this->endpoint, [
                 'json' => $signal
-            ]);
+           ]);
         } catch (\Exception $exception) {
             $this->logger->info(json_encode($signal), [$exception->getMessage()]);
             return;
