@@ -20,7 +20,12 @@ class R2BCSignalHandler extends SignalHandlerAbstract
             return;
         }
 
-        $signalParsed->lot = R2BCOrderLotResolver::resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
+        if ($signalParsed->type === R2BCSignalEnum::NEW_ORDER) {
+            $signalParsed->lot = R2BCOrderLotResolver::resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
+        } else {
+            $signalParsed->lot = 0;
+        }
+
         $signalParsed->messageId = $messageId;
         $signalParsed->extra['messageLink'] = $messageLink;
 
