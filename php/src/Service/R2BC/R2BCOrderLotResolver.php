@@ -49,7 +49,7 @@ class R2BCOrderLotResolver
         'USD.CAD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
     ];
 
-    private static array $factorDictionary = [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4];
+    private static array $factorDictionary = [0, 0, 0, 1, 2, 3, 5, 7, 9, 15, 23, 30, 50];
 
     public static function resolve(string $ticker, string $action, string $price): float
     {
@@ -58,7 +58,7 @@ class R2BCOrderLotResolver
         }
 
         $step = self::updateStateAndGetStep($ticker, $action, $price);
-        $result = R2BCSignalEnum::LOT_START + (R2BCSignalEnum::LOT_STEP * self::$factorDictionary[$step] ?? 5);
+        $result = R2BCSignalEnum::LOT_START + (R2BCSignalEnum::LOT_STEP * self::$factorDictionary[$step] ?? 50);
 
         return min($result, R2BCSignalEnum::LOT_MAX);
     }

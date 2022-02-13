@@ -13,5 +13,5 @@ class R2BCSignalEnum
 
     public const LOT_START = 0.01;
     public const LOT_STEP = 0.01;
-    public const LOT_MAX = 0.05;
+    public const LOT_MAX = 0.51;
 }
