@@ -20,7 +20,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
             return;
         }
 
-        if ($signalParsed->type === R2BCSignalEnum::NEW_ORDER) {
+        if ($signalParsed->type === 'OPEN') {
             $signalParsed->lot = R2BCOrderLotResolver::resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
         } else {
             $signalParsed->lot = 0;
