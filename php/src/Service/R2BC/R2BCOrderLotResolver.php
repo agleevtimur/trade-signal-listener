@@ -53,6 +53,10 @@ class R2BCOrderLotResolver
 
     public static function resolve(string $ticker, string $action, string $price): float
     {
+        $signalReceivedTime = getdate();
+        if ($signalReceivedTime['minutes'] > 5 && $signalReceivedTime['minutes'] < 57) {
+            return R2BCSignalEnum::LOT_START;
+        }
         if ($ticker === 'XAU.USD') {
             return R2BCSignalEnum::LOT_START;
         }
