@@ -81,6 +81,15 @@ class R2BCOrderLotResolver
         $key = $ticker . $action;
         $prevPrice = $redis->get($key . 'PRICE');
 
+        if ($ticker === 'EUR.USD' && ($currentStep = $redis->get($key)) > 3) {
+            $delta = (float)$currentPrice - (float)$prevPrice;
+
+            if (abs($delta) < 0.0009) {
+                $redis->set($key . 'PRICE', $currentPrice);
+                return $currentStep;
+            }
+        }
+
         if ($action === R2BCSignalEnum::BUY) {
             if ($currentPrice < $prevPrice) {
                 $redis->incr($key);
