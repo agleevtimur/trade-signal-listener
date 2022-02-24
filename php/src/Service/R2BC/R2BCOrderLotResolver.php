@@ -7,45 +7,45 @@ use Predis\Client;
 class R2BCOrderLotResolver
 {
     private static array $defaultStateValues = [
-        'EUR.USD' . R2BCSignalEnum::BUY => 1,
+        'EUR.USD' . R2BCSignalEnum::BUY => 0,
         'EUR.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'EUR.USD' . R2BCSignalEnum::SELL => 1,
+        'EUR.USD' . R2BCSignalEnum::SELL => 0,
         'EUR.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'GBP.USD' . R2BCSignalEnum::BUY => 1,
+        'GBP.USD' . R2BCSignalEnum::BUY => 0,
         'GBP.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'GBP.USD' . R2BCSignalEnum::SELL => 1,
+        'GBP.USD' . R2BCSignalEnum::SELL => 0,
         'GBP.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'AUD.USD' . R2BCSignalEnum::BUY => 1,
+        'AUD.USD' . R2BCSignalEnum::BUY => 0,
         'AUD.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'AUD.USD' . R2BCSignalEnum::SELL => 1,
+        'AUD.USD' . R2BCSignalEnum::SELL => 0,
         'AUD.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'USD.CHF' . R2BCSignalEnum::BUY => 1,
+        'USD.CHF' . R2BCSignalEnum::BUY => 0,
         'USD.CHF' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'USD.CHF' . R2BCSignalEnum::SELL => 1,
+        'USD.CHF' . R2BCSignalEnum::SELL => 0,
         'USD.CHF' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'EUR.CHF' . R2BCSignalEnum::BUY => 1,
+        'EUR.CHF' . R2BCSignalEnum::BUY => 0,
         'EUR.CHF' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'EUR.CHF' . R2BCSignalEnum::SELL => 1,
+        'EUR.CHF' . R2BCSignalEnum::SELL => 0,
         'EUR.CHF' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'XAU.USD' . R2BCSignalEnum::BUY => 1,
+        'XAU.USD' . R2BCSignalEnum::BUY => 0,
         'XAU.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'XAU.USD' . R2BCSignalEnum::SELL => 1,
+        'XAU.USD' . R2BCSignalEnum::SELL => 0,
         'XAU.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'USD.JPY' . R2BCSignalEnum::BUY => 1,
+        'USD.JPY' . R2BCSignalEnum::BUY => 0,
         'USD.JPY' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'USD.JPY' . R2BCSignalEnum::SELL => 1,
+        'USD.JPY' . R2BCSignalEnum::SELL => 0,
         'USD.JPY' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'EUR.JPY' . R2BCSignalEnum::BUY => 1,
+        'EUR.JPY' . R2BCSignalEnum::BUY => 0,
         'EUR.JPY' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'EUR.JPY' . R2BCSignalEnum::SELL => 1,
+        'EUR.JPY' . R2BCSignalEnum::SELL => 0,
         'EUR.JPY' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'EUR.GBP' . R2BCSignalEnum::BUY => 1,
+        'EUR.GBP' . R2BCSignalEnum::BUY => 0,
         'EUR.GBP' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'EUR.GBP' . R2BCSignalEnum::SELL => 1,
+        'EUR.GBP' . R2BCSignalEnum::SELL => 0,
         'EUR.GBP' . R2BCSignalEnum::SELL . 'PRICE' => 0,
-        'USD.CAD' . R2BCSignalEnum::BUY => 1,
+        'USD.CAD' . R2BCSignalEnum::BUY => 0,
         'USD.CAD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
-        'USD.CAD' . R2BCSignalEnum::SELL => 1,
+        'USD.CAD' . R2BCSignalEnum::SELL => 0,
         'USD.CAD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
     ];
 
@@ -54,7 +54,7 @@ class R2BCOrderLotResolver
     public static function resolve(string $ticker, string $action, string $price): float
     {
         $signalReceivedTime = getdate();
-        if ($signalReceivedTime['minutes'] > 5 && $signalReceivedTime['minutes'] < 57) {
+        if ($signalReceivedTime['minutes'] > 3 && $signalReceivedTime['minutes'] < 59) {
             return R2BCSignalEnum::LOT_START;
         }
         if ($ticker === 'XAU.USD') {

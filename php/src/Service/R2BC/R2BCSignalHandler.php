@@ -28,7 +28,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
         $signalParsed->messageId = $messageId;
         $signalParsed->extra['messageLink'] = $messageLink;
-
+	
         $this->send($signalParsed);
     }
 
