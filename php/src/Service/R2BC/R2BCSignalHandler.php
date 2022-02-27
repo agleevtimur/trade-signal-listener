@@ -22,13 +22,14 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
         if ($signalParsed->type === 'OPEN') {
             $signalParsed->lot = R2BCOrderLotResolver::resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
+            die($signalParsed->lot);
         } else {
             $signalParsed->lot = 0;
         }
 
         $signalParsed->messageId = $messageId;
         $signalParsed->extra['messageLink'] = $messageLink;
-	
+
         $this->send($signalParsed);
     }
 
