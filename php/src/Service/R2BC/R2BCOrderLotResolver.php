@@ -54,12 +54,13 @@ class R2BCOrderLotResolver
 
     public static function resolve(string $ticker, string $action, string $price): float
     {
+        if ($ticker === 'XAU.USD') {
+            return R2BCSignalEnum::LOT_BASE;
+        }
+
         $signalReceivedTime = getdate();
         if ($signalReceivedTime['minutes'] > 3 && $signalReceivedTime['minutes'] < 59) {
             return self::getLotSecondStrategy($ticker, $action, $price);
-        }
-        if ($ticker === 'XAU.USD') {
-            return R2BCSignalEnum::LOT_BASE;
         }
 
         $step = self::updateStateAndGetStep($ticker, $action, $price);
