@@ -50,11 +50,11 @@ class R2BCOrderLotResolver
     ];
 
     private static array $lotList = [0.01, 0.02, 0.03, 0.05, 0.07, 0.1, 0.13, 0.17, 0.23, 0.34, 0.4, 0.55];
-    private static array $factorDictionary = [1, 1, 1, 2, 2, 3, 5, 8, 13, 21, 34, 55];
+    private static array $factorDictionary = [1, 1, 2, 3, 3, 5, 8, 10, 13, 17, 21, 34, 55];
 
     public static function resolve(string $ticker, string $action, string $price): float
     {
-        if ($ticker === 'XAU.USD') {
+        if ($ticker === 'XAU.USD' || $ticker === 'EUR.JPY' || $ticker === 'USD.JPY') {
             return R2BCSignalEnum::LOT_BASE;
         }
 
@@ -99,7 +99,7 @@ class R2BCOrderLotResolver
 
         if ($ticker === 'EUR.USD') {
             $currentStep = $redis->get($key);
-            $delta = $secondStrategy === true ? 0.0006 : 0.0003;
+            $delta = $secondStrategy === true ? 0.0006 : 0.0004;
 
             if (abs((float)$currentPrice - (float)$prevPrice) < $delta) {
                 $redis->set($key . 'PRICE', $currentPrice);
