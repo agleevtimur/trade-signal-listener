@@ -5,13 +5,29 @@ namespace App\Service\R2BC;
 use App\DTO\BaseOrderDTO;
 use App\DTO\CloseOrderDTO;
 use App\DTO\NewOrderDTO;
+use App\Service\RedisClient;
 use App\Service\SignalHandlerAbstract;
+use GuzzleHttp\ClientInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class R2BCSignalHandler extends SignalHandlerAbstract
 {
     const SKIP_TICKERS = ['XAU'];
     public const CHANNEL_TELEGRAM_ID = 1210594398;
     protected static string $channelId = 'R2BC';
+
+    public function __construct(
+        LoggerInterface $logger,
+        ClientInterface $client,
+        private ParameterBagInterface $parameterBag,
+        private R2BCOrderLotResolver $lotResolver,
+        private RedisClient $redisClient,
+    )
+    {
+        $endpoint = $this->parameterBag->get('signal_receiver_url');
+        parent::__construct($logger, $client, $endpoint);
+    }
 
     public function resolve(string $text, string $messageLink, int $messageId = 0): void
     {
@@ -21,8 +37,18 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         }
 
         if ($signalParsed->type === 'OPEN') {
-            $signalParsed->lot = R2BCOrderLotResolver::resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
+            $signalParsed->lot = $this->lotResolver->resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
+
+            if ($signalParsed->lot == 0) {
+                return;
+            }
         } else {
+            $count = $this->redisClient->getClient()->get($signalParsed->ticker . $signalParsed->action . '-COUNT');
+            if ($count > 0) {
+                $this->redisClient->getClient()->decr($signalParsed->ticker . $signalParsed->action . '-COUNT');
+            } else {
+                $this->redisClient->getClient()->set($signalParsed->ticker . $signalParsed->action . '-COUNT', 0);
+            }
             $signalParsed->lot = 0;
         }
 

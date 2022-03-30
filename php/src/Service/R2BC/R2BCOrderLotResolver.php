@@ -2,6 +2,7 @@
 
 namespace App\Service\R2BC;
 
+use App\Service\RedisClient;
 use Predis\Client;
 
 class R2BCOrderLotResolver
@@ -10,128 +11,89 @@ class R2BCOrderLotResolver
 
     private static array $defaultStateValues = [
         'EUR.USD' . R2BCSignalEnum::BUY => 0,
-        'EUR.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'EUR.USD' . R2BCSignalEnum::SELL => 0,
-        'EUR.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'GBP.USD' . R2BCSignalEnum::BUY => 0,
-        'GBP.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'GBP.USD' . R2BCSignalEnum::SELL => 0,
-        'GBP.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'AUD.USD' . R2BCSignalEnum::BUY => 0,
-        'AUD.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'AUD.USD' . R2BCSignalEnum::SELL => 0,
-        'AUD.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'USD.CHF' . R2BCSignalEnum::BUY => 0,
-        'USD.CHF' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'USD.CHF' . R2BCSignalEnum::SELL => 0,
-        'USD.CHF' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'EUR.CHF' . R2BCSignalEnum::BUY => 0,
-        'EUR.CHF' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'EUR.CHF' . R2BCSignalEnum::SELL => 0,
-        'EUR.CHF' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'XAU.USD' . R2BCSignalEnum::BUY => 0,
-        'XAU.USD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'XAU.USD' . R2BCSignalEnum::SELL => 0,
-        'XAU.USD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'USD.JPY' . R2BCSignalEnum::BUY => 0,
-        'USD.JPY' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'USD.JPY' . R2BCSignalEnum::SELL => 0,
-        'USD.JPY' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'EUR.JPY' . R2BCSignalEnum::BUY => 0,
-        'EUR.JPY' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'EUR.JPY' . R2BCSignalEnum::SELL => 0,
-        'EUR.JPY' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'EUR.GBP' . R2BCSignalEnum::BUY => 0,
-        'EUR.GBP' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'EUR.GBP' . R2BCSignalEnum::SELL => 0,
-        'EUR.GBP' . R2BCSignalEnum::SELL . 'PRICE' => 0,
         'USD.CAD' . R2BCSignalEnum::BUY => 0,
-        'USD.CAD' . R2BCSignalEnum::BUY . 'PRICE' => 0,
         'USD.CAD' . R2BCSignalEnum::SELL => 0,
-        'USD.CAD' . R2BCSignalEnum::SELL . 'PRICE' => 0,
     ];
 
-    private static array $lotList = [0.01, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1, 0.13, 0.17, 0.23, 0.27, 0.34, 0.4, 0.55];
-    private static array $lotListMinRisk = [0.01, 0.01, 0.01, 0.2, 0.2, 0.03, 0.03, 0.04, 0.05, 0.07, 0.1, 0.1, 0.13, 0.17, 0.23, 0.27, 0.34, 0.4, 0.55];
-    private static array $factorDictionary = [1, 1, 2, 3, 5, 8, 10, 13, 15, 17, 21, 27, 34, 40, 55];
-    private static array $factorDictionaryMinRisk = [1, 1, 1, 2, 2, 3, 3, 5, 8, 10, 10, 13, 15, 17, 19, 21, 27, 34, 40, 55];
+    private static array $factorDictionary = [1, 1, 2, 3, 3, 5, 7, 10, 13, 15, 17, 21, 24, 27, 34, 40, 55];
+    private static array $factorDictionaryMinRisk = [1, 1, 0, 2, 0, 3, 0, 5, 0, 7, 0, 10, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 24, 0, 27, 0, 34, 0, 40, 0, 55];
 
-    public static function resolve(string $ticker, string $action, string $price): float
+    private Client $redisClient;
+
+    public function __construct(RedisClient $redis)
     {
-        $signalReceivedTime = getdate();
-        if ($signalReceivedTime['minutes'] > 2 && $signalReceivedTime['minutes'] < 59) {
-            return self::getLotSecondStrategy($ticker, $action, $price);
-        }
+        $this->redisClient = $redis->getClient();
+    }
 
-        $step = self::updateStateAndGetStep($ticker, $action, $price);
+    public function resolve(string $ticker, string $action, string $price): float
+    {
+        $step = $this->updateStateAndGetStep($ticker, $action, $price);
 
         return R2BCSignalEnum::LOT_BASE * ((self::MIN_RISK ? self::$factorDictionaryMinRisk[$step] : self::$factorDictionary[$step]) ?? 55);
     }
 
-    public static function fillStateWithDefaultValues(): void
+    public function fillStateWithDefaultValues(): void
     {
-        $redis = self::connectDb();
-
         foreach (self::$defaultStateValues as $defaultStateKey => $value) {
-            $redis->set($defaultStateKey, $value);
-        }
-
-        foreach (self::$defaultStateValues as $defaultStateKey => $value) {
-            $redis->set($defaultStateKey . '-SECOND', $value);
+            $this->redisClient->set($defaultStateKey . '-FIRST', $value);
+            $this->redisClient->set($defaultStateKey . '-FIRST-PRICE', $value);
+            $this->redisClient->set($defaultStateKey . '-COUNT', $value);
+            $this->redisClient->set($defaultStateKey . '-SECOND', $value);
+            $this->redisClient->set($defaultStateKey . '-SECOND-PRICE', $value);
         }
     }
 
-    private static function getLotSecondStrategy(string $ticker, string $action, string $currentPrice): float
+    private function updateStateAndGetStep(string $ticker, string $action, string $currentPrice): int
     {
-        $step = self::updateStateAndGetStep($ticker, $action, $currentPrice, true);
-
-        return (self::MIN_RISK ? self::$lotListMinRisk[$step] : self::$lotList[$step]) ??  0.55;
-    }
-
-    private static function updateStateAndGetStep(string $ticker, string $action, string $currentPrice, bool $secondStrategy = false): int
-    {
-        $redis = self::connectDb();
-        $key = $ticker . $action;
-        if ($secondStrategy) {
-            $key .= '-SECOND';
-        }
-        $prevPrice = $redis->get($key . 'PRICE');
+        $countKey = $ticker . $action . '-COUNT';
+        $signalReceivedTime = getdate();
+        $prefix = $signalReceivedTime['minutes'] > 2 && $signalReceivedTime['minutes'] < 59 ? '-SECOND' : '-FIRST';
+        $key = $ticker . $action . $prefix;
+        $prevPrice = $this->redisClient->get($key . '-PRICE');
 
         if ($ticker === 'EUR.USD') {
-            $currentStep = $redis->get($key);
-            $delta = $secondStrategy === true ? 0.0006 : 0.0004;
+            $currentStep = $this->redisClient->get($key);
 
-            if (abs((float)$currentPrice - (float)$prevPrice) < $delta) {
-                $redis->set($key . 'PRICE', $currentPrice);
+            if (abs((float)$currentPrice - (float)$prevPrice) < 0.0006) {
+                $this->redisClient->set($key . '-PRICE', $currentPrice);
                 return $currentStep;
             }
         }
 
-        if ($action === R2BCSignalEnum::BUY) {
-            if ($currentPrice < $prevPrice) {
-                $redis->incr($key);
-            } else {
-                $redis->set($key, 0);
-            }
-        } else {
-            if ($currentPrice > $prevPrice) {
-                $redis->incr($key);
-            } else {
-                $redis->set($key, 0);
-            }
-        }
+        $this->updateState($action, $countKey, $key, $currentPrice, $prevPrice);
 
-        $redis->set($key . 'PRICE', $currentPrice);
-
-        return $redis->get($key);
+        return $this->redisClient->get($key);
     }
 
-    private static function connectDb(): Client
+    private function updateState(string $action, string $countKey, string $key, string $currentPrice, string $prevPrice): void
     {
-        return new Client([
-            'host' => 'redis',
-            'port' => 6379,
-            'persistent' => '1'
-        ]);
+        $priceLess = $currentPrice < $prevPrice;
+        $flag = $action === R2BCSignalEnum::BUY;
+
+        if ($this->redisClient->get($countKey) > 0 && $priceLess === $flag) {
+            $this->redisClient->incr($key);
+        } else {
+            $this->redisClient->set($key, 0);
+        }
+
+        $this->redisClient->incr($countKey);
+        $this->redisClient->set($key . '-PRICE', $currentPrice);
     }
 }

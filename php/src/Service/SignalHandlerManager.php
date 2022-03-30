@@ -2,8 +2,9 @@
 
 namespace App\Service;
 
+use App\Service\R2BC\R2BCOrderLotResolver;
 use App\Service\R2BC\R2BCSignalHandler;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -15,8 +16,7 @@ class SignalHandlerManager
 
     public function __construct(
         private LoggerInterface       $logger,
-        private Client                $client,
-        private ParameterBagInterface $parameterBag,
+        private R2BCSignalHandler $r2BCSignalHandler
     )
     {
     }
@@ -29,6 +29,6 @@ class SignalHandlerManager
         }
 
         $this->logger->info('new signal received');
-        (new $handlerClass($this->logger, $this->client, $this->parameterBag->get('signal_receiver_url')))->resolve($message, $messageLink, $messageId);
+        $this->r2BCSignalHandler->resolve($message, $messageLink, $messageId);
     }
 }
