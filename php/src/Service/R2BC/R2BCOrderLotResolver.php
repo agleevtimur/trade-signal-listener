@@ -32,7 +32,7 @@ class R2BCOrderLotResolver
         'USD.CAD' . R2BCSignalEnum::SELL => 0,
     ];
 
-    private static array $factorDictionary = [1, 1, 2, 3, 3, 5, 7, 10, 13, 15, 17, 21, 24, 27, 34, 40, 55];
+    private static array $factorDictionary = [0, 0, 2, 3, 3, 5, 7, 10, 13, 15, 17, 21, 24, 27, 34, 40, 55];
     private static array $factorDictionaryMinRisk = [1, 1, 0, 2, 0, 3, 0, 5, 0, 7, 0, 10, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 24, 0, 27, 0, 34, 0, 40, 0, 55];
 
     private Client $redisClient;
