@@ -32,7 +32,7 @@ class R2BCOrderLotResolver
         'USD.CAD' . R2BCSignalEnum::SELL => 0,
     ];
 
-    private static array $factorDictionary = [0, 0, 2, 3, 3, 5, 7, 10, 13, 15, 17, 21, 24, 27, 34, 40, 55];
+    private static array $factorDictionary = [1, 1, 1, 1, 3, 5, 7, 10, 13, 15, 17, 21, 24, 27, 34, 40, 55];
     private static array $factorDictionaryMinRisk = [1, 1, 0, 2, 0, 3, 0, 5, 0, 7, 0, 10, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 24, 0, 27, 0, 34, 0, 40, 0, 55];
 
     private Client $redisClient;
@@ -45,6 +45,10 @@ class R2BCOrderLotResolver
     public function resolve(string $ticker, string $action, string $price): float
     {
         $step = $this->updateStateAndGetStep($ticker, $action, $price);
+
+        if ($ticker !== 'EUR.USD' && $step < 2) {
+            return 0.0;
+        }
 
         return R2BCSignalEnum::LOT_BASE * ((self::MIN_RISK ? self::$factorDictionaryMinRisk[$step] : self::$factorDictionary[$step]) ?? 55);
     }
@@ -70,8 +74,8 @@ class R2BCOrderLotResolver
 
         if ($ticker === 'EUR.USD') {
             $currentStep = $this->redisClient->get($key);
-
-            if (abs((float)$currentPrice - (float)$prevPrice) < 0.0006) {
+            $delta = $currentStep < 5 ? 0.0003 : 0.00085;
+            if (abs((float)$currentPrice - (float)$prevPrice) < $delta) {
                 $this->redisClient->set($key . '-PRICE', $currentPrice);
                 return $currentStep;
             }
