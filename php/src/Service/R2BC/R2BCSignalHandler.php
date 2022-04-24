@@ -36,19 +36,30 @@ class R2BCSignalHandler extends SignalHandlerAbstract
             return;
         }
 
+        $redisClient = $this->redisClient->getClient();
         if ($signalParsed->type === 'OPEN') {
-            $signalParsed->lot = $this->lotResolver->resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price);
+            $result = $this->lotResolver->resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price, $signalParsed->hasTakeProfit);
+
+            $signalParsed->lot = $result['lot'];
+            $redisClient->set($signalParsed->orderId, $result['key']);
 
             if ($signalParsed->lot == 0) {
                 return;
             }
         } else {
-            $count = $this->redisClient->getClient()->get($signalParsed->ticker . $signalParsed->action . '-COUNT');
-            if ($count > 0) {
-                $this->redisClient->getClient()->decr($signalParsed->ticker . $signalParsed->action . '-COUNT');
-            } else {
-                $this->redisClient->getClient()->set($signalParsed->ticker . $signalParsed->action . '-COUNT', 0);
+            $key = $redisClient->get($signalParsed->orderId);
+
+            if ($key !== null) {
+                $count = $redisClient->get($key . '-COUNT');
+                if ($count > 1) {
+                    $redisClient->decr($key . '-COUNT');
+                    $redisClient->decr($key);
+                } else {
+                    $redisClient->del($redisClient->keys($key . '*'));
+                }
+                $redisClient->del($signalParsed->orderId);
             }
+
             $signalParsed->lot = 0;
         }
 
@@ -111,6 +122,9 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         $signal = new NewOrderDTO();
 
         $signal->contractType = 'MARKET';
+
+        $parsed = explode('TP: ', $text);
+        $signal->hasTakeProfit = (float)$parsed[1] > 0.0;
 
         return $signal;
     }

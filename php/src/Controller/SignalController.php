@@ -21,7 +21,7 @@ class SignalController extends AbstractController
 
     public function reloadState(R2BCOrderLotResolver $lotResolver): JsonResponse
     {
-        $lotResolver->fillStateWithDefaultValues();
+        $lotResolver->cleanOrdersState();
 
         return $this->json(['status' => 'success']);
     }
