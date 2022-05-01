@@ -6,7 +6,7 @@ namespace App\DTO;
 class NewOrderDTO extends BaseOrderDTO
 {
     public string $contractType;
-    public bool $hasTakeProfit;
+    public float $takeProfit;
 
     public function jsonSerialize(): array
     {

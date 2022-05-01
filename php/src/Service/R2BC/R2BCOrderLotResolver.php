@@ -20,11 +20,11 @@ class R2BCOrderLotResolver
         $this->redisClient = $redis->getClient();
     }
 
-    public function resolve(string $ticker, string $action, string $price, bool $hasTP): array
+    public function resolve(string $ticker, string $action, float $takeProfit): array
     {
-        $key = $this->resolveOrderChainKey($price, $ticker, $action, $hasTP);
+        $key = $ticker . '-' . $action . '-' . $takeProfit;
         $result = ['key' => $key, 'lot' => 0.0];
-        $step = $this->updateStateAndGetStep($key, $ticker, $action, $price);
+        $step = $this->updateStateAndGetStep($key);
 
         if ($ticker !== 'EUR.USD' && $step < 2) {
             return $result;
@@ -40,71 +40,13 @@ class R2BCOrderLotResolver
         $this->redisClient->flushall();
     }
 
-    private function updateStateAndGetStep(string $key, string $ticker, string $action, string $currentPrice): int
-    {
-        $prevPrice = $this->redisClient->get($key . '-PRICE');
-
-        if ($ticker === 'EUR.USD') {
-            $currentStep = $this->redisClient->get($key);
-            if ($currentPrice > 4) {
-                if (abs((float)$currentPrice - (float)$prevPrice) < 0.0006) {
-                    $this->redisClient->set($key . '-PRICE', $currentPrice);
-                    return $currentStep;
-                }
-            }
-        }
-
-        $this->updateState($action, $key, $currentPrice, $prevPrice);
-
-        return $this->redisClient->get($key);
-    }
-
-    private function updateState(string $action, string $key, string $currentPrice, ?string $prevPrice): void
+    private function updateStateAndGetStep(string $key): int
     {
         $countKey = $key . '-COUNT';
-        $priceLess = $currentPrice < $prevPrice;
-        $flag = $action === R2BCSignalEnum::BUY;
 
-        if ($this->redisClient->get($countKey) > 0 && $priceLess === $flag) {
-            $this->redisClient->incr($key);
-        } else {
-            $this->redisClient->set($key, 0);
-        }
-
+        $this->redisClient->incr($key);
         $this->redisClient->incr($countKey);
-        $this->redisClient->set($key . '-PRICE', $currentPrice);
-    }
 
-    private function resolveOrderChainKey(string $currentPrice, string $ticker, string $action, bool $hasTP): string
-    {
-        $tp = $hasTP === true ? 'tp' : 'no-tp';
-        $keys = $this->redisClient->keys($ticker . '-' . $action . $tp . '*');
-
-        $resultKey = '';
-        if ($action === R2BCSignalEnum::SELL) {
-            $maxPrice = 0;
-            foreach ($keys as $key) {
-                $lastPrice = $this->redisClient->get($key . '-PRICE');
-                if ($currentPrice > $lastPrice && $lastPrice > $maxPrice) {
-                    $maxPrice = $lastPrice;
-                    $resultKey = $key;
-                }
-            }
-        } else {
-            $minPrice = 10000;
-            foreach ($keys as $key) {
-                $lastPrice = $this->redisClient->get($key . '-PRICE');
-                if ($currentPrice < $lastPrice && $lastPrice < $minPrice) {
-                    $minPrice = $lastPrice;
-                    $resultKey = $key;
-                }
-            }
-        }
-
-        if ($resultKey === '') {
-            $resultKey = uniqid($ticker . '-' . $action . $tp);
-        }
-
-        return $resultKey;
+        return $this->redisClient->get($key);
     }
 }

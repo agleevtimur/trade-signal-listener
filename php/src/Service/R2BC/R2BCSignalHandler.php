@@ -38,7 +38,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
         $redisClient = $this->redisClient->getClient();
         if ($signalParsed->type === 'OPEN') {
-            $result = $this->lotResolver->resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price, $signalParsed->hasTakeProfit);
+            $result = $this->lotResolver->resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->takeProfit);
 
             $signalParsed->lot = $result['lot'];
             $redisClient->set($signalParsed->orderId, $result['key']);
@@ -55,8 +55,10 @@ class R2BCSignalHandler extends SignalHandlerAbstract
                     $redisClient->decr($key . '-COUNT');
                     $redisClient->decr($key);
                 } else {
-                    $redisClient->del($redisClient->keys($key . '*'));
+                    $redisClient->del($key);
+                    $redisClient->del($key . '-COUNT');
                 }
+
                 $redisClient->del($signalParsed->orderId);
             }
 
@@ -124,7 +126,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
         $signal->contractType = 'MARKET';
 
         $parsed = explode('TP: ', $text);
-        $signal->hasTakeProfit = (float)$parsed[1] > 0.0;
+        $signal->takeProfit = (float)$parsed[1];
 
         return $signal;
     }
