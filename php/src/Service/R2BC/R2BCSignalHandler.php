@@ -38,26 +38,23 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
         $redisClient = $this->redisClient->getClient();
         if ($signalParsed->type === 'OPEN') {
-            $result = $this->lotResolver->resolve($signalParsed->ticker, $signalParsed->action, $signalParsed->price, $signalParsed->hasTakeProfit);
+            $lot = $this->lotResolver->resolve(
+                $signalParsed->orderId,
+                $signalParsed->ticker,
+                $signalParsed->action,
+                $signalParsed->price,
+                $signalParsed->hasTakeProfit
+            );
 
-            $signalParsed->lot = $result['lot'];
-            $redisClient->set($signalParsed->orderId, $result['key']);
+            $signalParsed->lot = $lot;
 
             if ($signalParsed->lot == 0) {
                 return;
             }
         } else {
-            $key = $redisClient->get($signalParsed->orderId);
-
-            if ($key !== null) {
-                $count = $redisClient->get($key . '-COUNT');
-                if ($count > 1) {
-                    $redisClient->decr($key . '-COUNT');
-                    $redisClient->decr($key);
-                } else {
-                    $redisClient->del($redisClient->keys($key . '*'));
-                }
-                $redisClient->del($signalParsed->orderId);
+            $keysToDel = $redisClient->keys($signalParsed->orderId . '*');
+            if ($keysToDel !== []) {
+                $redisClient->del($keysToDel);
             }
 
             $signalParsed->lot = 0;
