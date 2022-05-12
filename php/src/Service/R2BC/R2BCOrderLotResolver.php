@@ -10,7 +10,7 @@ class R2BCOrderLotResolver
     const MIN_RISK = false;
 
     private static array $tickers = ['EUR.USD', 'GBP.USD', 'AUD.USD', 'USD.CHF', 'EUR.CHF', 'XAU.USD', 'USD.JPY', 'EUR.JPY', 'EUR.GBP', 'USD.CAD'];
-    private static array $factorDictionary = [1, 1, 2, 3, 6, 10, 14, 20, 26, 30, 34, 42, 48, 54, 68];
+    private static array $factorDictionary = [1, 1, 2, 4, 7, 11, 16, 23, 30, 35, 39, 49, 56, 63, 79];
     private static array $factorDictionaryMinRisk = [1, 1, 0, 2, 0, 3, 0, 5, 0, 7, 0, 10, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 24, 0, 27, 0, 34, 0, 40, 0, 55];
 
     private Client $redisClient;
