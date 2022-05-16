@@ -10,7 +10,7 @@ class R2BCOrderLotResolver
     const MIN_RISK = false;
 
     private static array $tickers = ['EUR.USD', 'GBP.USD', 'AUD.USD', 'USD.CHF', 'EUR.CHF', 'XAU.USD', 'USD.JPY', 'EUR.JPY', 'EUR.GBP', 'USD.CAD'];
-    private static array $factorDictionary = [1, 1, 2, 4, 7, 11, 16, 23, 30, 35, 39, 49, 56, 63, 79];
+    private static array $factorDictionary = [1, 1, 2, 3, 5, 8, 11, 16, 21, 25, 28, 35, 40, 45, 56];
     private static array $factorDictionaryMinRisk = [1, 1, 0, 2, 0, 3, 0, 5, 0, 7, 0, 10, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 24, 0, 27, 0, 34, 0, 40, 0, 55];
 
     private Client $redisClient;
@@ -24,11 +24,11 @@ class R2BCOrderLotResolver
     {
         $lotStep = $this->resolveLotStep($orderId, $price, $ticker, $action, $hasTP);
 
-        if ($ticker !== 'EUR.USD' && $lotStep < 2) {
+        if ($ticker !== 'EUR.USD' && $lotStep < 1) {
             return 0.0;
         }
 
-        return R2BCSignalEnum::LOT_BASE * ((self::MIN_RISK ? self::$factorDictionaryMinRisk[$lotStep] : self::$factorDictionary[$lotStep]) ?? 55);
+        return R2BCSignalEnum::LOT_BASE * ((self::MIN_RISK ? self::$factorDictionaryMinRisk[$lotStep] : self::$factorDictionary[$lotStep]) ?? 56);
     }
 
     public function cleanOrdersState(): void
@@ -46,7 +46,8 @@ class R2BCOrderLotResolver
             $maxPrice = 0;
             foreach ($priceKeys as $priceKey) {
                 $price = $this->redisClient->get($priceKey);
-                if ($currentPrice > $price && $price > $maxPrice) {
+                $free = $this->redisClient->get(substr($priceKey, 0, -6) . '-free') ?? 0;
+                if ($free == 1 && $currentPrice > $price && $price > $maxPrice) {
                     $maxPrice = $price;
                     $resultOrderId = explode('-', $priceKey)[0];
                 }
@@ -55,7 +56,8 @@ class R2BCOrderLotResolver
             $minPrice = 10000;
             foreach ($priceKeys as $priceKey) {
                 $price = $this->redisClient->get($priceKey);
-                if ($currentPrice < $price && $price < $minPrice) {
+                $free = $this->redisClient->get(substr($priceKey, 0, -6) . '-free') ?? 0;
+                if ($free == 1 && $currentPrice < $price && $price < $minPrice) {
                     $minPrice = $price;
                     $resultOrderId = explode('-', $priceKey)[0];
                 }
@@ -64,22 +66,23 @@ class R2BCOrderLotResolver
 
         $key = "$orderId-$tp-$ticker-$action";
 
-        if ($resultOrderId === '') {
-            $this->redisClient->set($key . '-price', $currentPrice);
-            $this->redisClient->set($key . '-state', 0);
+        $this->redisClient->set($key . '-free', 1);
+        $this->redisClient->set($key . '-price', $currentPrice);
 
+        if ($resultOrderId === '') {
+            $this->redisClient->set($key . '-state', 0);
             return 0;
         }
 
         $lastKey = "$resultOrderId-$tp-$ticker-$action";
         $prevState = $this->redisClient->get($lastKey . '-state');
-
-        $this->redisClient->set($key . '-price', $currentPrice);
+        $this->redisClient->set($lastKey . '-free', 0);
 
         if ($ticker === 'EUR.USD') {
             if ($prevState > 4) {
                 $prevPrice = $action === R2BCSignalEnum::SELL ? $maxPrice : $minPrice;
-                if (abs((float)$currentPrice - (float)$prevPrice) < 0.0004) {
+                if (abs((float)$currentPrice - (float)$prevPrice) < 0.0005) {
+                    $this->redisClient->set($key . '-state', $prevState);
                     return $prevState;
                 }
             }
