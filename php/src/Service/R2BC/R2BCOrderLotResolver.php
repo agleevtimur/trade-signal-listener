@@ -46,27 +46,29 @@ class R2BCOrderLotResolver
             $maxPrice = 0;
             foreach ($priceKeys as $priceKey) {
                 $price = $this->redisClient->get($priceKey);
-                $free = $this->redisClient->get(substr($priceKey, 0, -6) . '-free') ?? 0;
-                if ($free == 1 && $currentPrice > $price && $price > $maxPrice) {
+                $currentOrderId = explode('-', $priceKey)[0];
+                $link = $this->redisClient->keys("*-$currentOrderId-link");
+
+                if ($link === [] && $currentPrice > $price && $price > $maxPrice) {
                     $maxPrice = $price;
-                    $resultOrderId = explode('-', $priceKey)[0];
+                    $resultOrderId = $currentOrderId;
                 }
             }
         } else {
             $minPrice = 10000;
             foreach ($priceKeys as $priceKey) {
                 $price = $this->redisClient->get($priceKey);
-                $free = $this->redisClient->get(substr($priceKey, 0, -6) . '-free') ?? 0;
-                if ($free == 1 && $currentPrice < $price && $price < $minPrice) {
+                $currentOrderId = explode('-', $priceKey)[0];
+                $link = $this->redisClient->keys("*-$currentOrderId-link");
+
+                if ($link === [] && $currentPrice < $price && $price < $minPrice) {
                     $minPrice = $price;
-                    $resultOrderId = explode('-', $priceKey)[0];
+                    $resultOrderId = $currentOrderId;
                 }
             }
         }
 
         $key = "$orderId-$tp-$ticker-$action";
-
-        $this->redisClient->set($key . '-free', 1);
         $this->redisClient->set($key . '-price', $currentPrice);
 
         if ($resultOrderId === '') {
@@ -74,9 +76,9 @@ class R2BCOrderLotResolver
             return 0;
         }
 
+        $this->redisClient->set("$orderId-$resultOrderId-link", 1);
         $lastKey = "$resultOrderId-$tp-$ticker-$action";
         $prevState = $this->redisClient->get($lastKey . '-state');
-        $this->redisClient->set($lastKey . '-free', 0);
 
         if ($ticker === 'EUR.USD') {
             if ($prevState > 4) {
