@@ -24,7 +24,7 @@ class R2BCOrderLotResolver
     {
         $lotStep = $this->resolveLotStep($orderId, $price, $ticker, $action, $hasTP);
 
-        if ($ticker !== 'EUR.USD' && $lotStep < 1) {
+        if ($ticker !== 'EUR.USD' && $lotStep < 2) {
             return 0.0;
         }
 
