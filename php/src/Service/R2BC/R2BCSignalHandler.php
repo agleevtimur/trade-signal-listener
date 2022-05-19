@@ -59,7 +59,7 @@ class R2BCSignalHandler extends SignalHandlerAbstract
 
             $signalParsed->lot = 0;
         }
-
+        $this->logger->info('got lot');
         $signalParsed->messageId = $messageId;
         $signalParsed->extra['messageLink'] = $messageLink;
 

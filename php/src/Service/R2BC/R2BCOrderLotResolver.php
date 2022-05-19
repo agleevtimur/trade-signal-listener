@@ -4,6 +4,7 @@ namespace App\Service\R2BC;
 
 use App\Service\RedisClient;
 use Predis\Client;
+use Psr\Log\LoggerInterface;
 
 class R2BCOrderLotResolver
 {
@@ -14,20 +15,23 @@ class R2BCOrderLotResolver
     private static array $factorDictionaryMinRisk = [1, 1, 0, 2, 0, 3, 0, 5, 0, 7, 0, 10, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 24, 0, 27, 0, 34, 0, 40, 0, 55];
 
     private Client $redisClient;
+    private LoggerInterface $logger;
 
-    public function __construct(RedisClient $redis)
+    public function __construct(RedisClient $redis, LoggerInterface $logger)
     {
         $this->redisClient = $redis->getClient();
+        $this->logger = $logger;
     }
 
     public function resolve(string $orderId, string $ticker, string $action, string $price, bool $hasTP): float
     {
+        $this->logger->info('resolved lot begin');
         $lotStep = $this->resolveLotStep($orderId, $price, $ticker, $action, $hasTP);
-
+        $this->logger->info('resolved step');
         if ($ticker !== 'EUR.USD' && $lotStep < 2) {
             return 0.0;
         }
-
+        $this->logger->info('before count lot');
         return R2BCSignalEnum::LOT_BASE * ((self::MIN_RISK ? self::$factorDictionaryMinRisk[$lotStep] : self::$factorDictionary[$lotStep]) ?? 56);
     }
 
